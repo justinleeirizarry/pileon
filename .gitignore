@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+agv/
+
+# Flask instance folder
+instance/
+
+# Environment variables
+.env
+
+# Development tools
+.idea/  # PyCharm
+.vscode/  # Visual Studio Code
+
+# Operating system files
+.DS_Store  # macOS
+
+# Ignore temporary files
+*.tmp
+*.log
+
+# Configuration file
+OAI_CONFIG_LIST

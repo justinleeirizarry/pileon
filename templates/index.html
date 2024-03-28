@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dr. Testington</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+        integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
+        crossorigin="anonymous"></script>
+    <script>
+        const socket = io()
+        socket.on('message', function (data) {
+            const newDiv = document.createElement('div');
+            newDiv.textContent = `${data.sender}: ${data.content}`;
+            document.getElementById('result').appendChild(newDiv);
+        });
+
+        function triggerEndpoint() {
+            const userMessage = document.getElementById('input').value;
+            fetch('/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userMessage }),
+            })
+                .then(response => response.json())
+
+                .catch(error => console.error('Error:', error));
+        }
+
+    </script>
+</head>
+
+<body>
+    <h1>AutoGen</h1>
+    <input type="text" id="input" placeholder="Type your message...">
+    <button onclick="triggerEndpoint()">Submit</button>
+    <pre id="result"></pre>
+    <pre id="finalResponse"></pre>
+
+</body>
+
+</html>

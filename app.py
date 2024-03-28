@@ -71,7 +71,7 @@ def index():
 
 @app.route('/run', methods=['POST'])
 def run():
-    # Extract the message from the posted data
+    
     data = request.get_json()
     user_message = data.get('message', "Default message if none provided")
     

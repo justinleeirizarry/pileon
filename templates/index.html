@@ -4,6 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Dr. Testington</title>
+    <style>
+        #result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #result-container div {
+            border-radius: 2rem;
+            padding: 3%;
+            text-wrap: wrap;
+            margin-bottom: -80px;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        #result-container div:hover {
+            transform: translateY(-10px);
+            z-index: 2;
+        }
+
+        #user_proxy {
+            border: 1px solid yellow;
+            background-color: #fff9c4;
+        }
+
+        #op {
+            border: 1px solid red;
+            background-color: #ffcdd2;
+        }
+
+        #hater {
+            border: 1px solid blue;
+            background-color: #bbdefb;
+        }
+
+        #critic {
+            border: 1px solid green;
+            background-color: #c8e6c9;
+        }
+    </style>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
         integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
         crossorigin="anonymous"></script>
@@ -11,10 +56,10 @@
         const socket = io()
         socket.on('message', function (data) {
             const newDiv = document.createElement('div');
+            newDiv.id = data.sender.toLowerCase();
             newDiv.textContent = `${data.sender}: ${data.content}`;
-            document.getElementById('result').appendChild(newDiv);
+            document.getElementById('result-container').appendChild(newDiv);
         });
-
         function triggerEndpoint() {
             const userMessage = document.getElementById('input').value;
             fetch('/run', {
@@ -25,10 +70,8 @@
                 body: JSON.stringify({ message: userMessage }),
             })
                 .then(response => response.json())
-
                 .catch(error => console.error('Error:', error));
         }
-
     </script>
 </head>
 
@@ -36,9 +79,7 @@
     <h1>AutoGen</h1>
     <input type="text" id="input" placeholder="Type your message...">
     <button onclick="triggerEndpoint()">Submit</button>
-    <pre id="result"></pre>
-
-
+    <div id="result-container"></div>
 </body>
 
 </html>

@@ -24,28 +24,15 @@ def new_print_received_message(self, message, sender):
 GroupChatManager._print_received_message = new_print_received_message
 
 
-
-
-
-def is_termination_msg(data):
-    has_content = "content" in data and data["content"] is not None
-    return has_content and "TERMINATE" in data["content"]
-
-
 user_proxy = UserProxyAgent(
     name="Admin",
-    system_message="A human admin. Interact with the planner to discuss an idea for an app. The planner should start",
+    system_message="A human admin. Interact with the planner to discuss an idea for an app. The planner should start.",
     code_execution_config=False,
-    is_termination_msg=is_termination_msg, 
+    is_termination_msg=lambda msg: "TERMINATE" in msg["content"],
     human_input_mode='NEVER',
 )
 
-planner = AssistantAgent(
-    name="Op",
-    system_message="""Provide negative feedback to the user then bring in the hater for more criticism.
-""",
-    llm_config=gpt4_config,
-)
+
 
 hater = AssistantAgent(
     name="Hater",
@@ -57,6 +44,13 @@ hater = AssistantAgent(
 critic = AssistantAgent(
     name="Critic",
     system_message="Critic. Double check the critisism make nothing is missing",
+    llm_config=gpt4_config,
+)
+
+planner = AssistantAgent(
+    name="Op",
+    system_message="""Provide negative feedback to the user.
+""",
     llm_config=gpt4_config,
 )
 groupchat = GroupChat(
@@ -81,4 +75,4 @@ def run():
     return jsonify(messages)
 
 
-app.run(debug=False, port=8080)
+app.run(debug=True, port=8080)

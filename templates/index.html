@@ -4,64 +4,134 @@
 <head>
     <meta charset="UTF-8">
     <title>Dr. Testington</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Open+Sans:wght@400&display=swap"
+        rel="stylesheet">
     <style>
+        body {
+            background-color: #F2F0E9;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: "Open Sans", sans-serif;
+            margin: 2rem;
+            font-weight: 300;
+
+        }
+
+        h1 {
+            font-family: "Bebas Neue", sans-serif;
+            font-weight: 600;
+            font-style: normal;
+            font-size: 100px;
+
+        }
+
+        #input {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 1.5rem;
+            width: 50vw;
+            height: 2rem;
+            box-shadow: 0 1px 6px 0 rgba(32, 33, 36, 0.28);
+        }
+
         #result-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             position: relative;
         }
 
         #result-container div {
             border-radius: 2rem;
-            padding: 3%;
-            text-wrap: wrap;
+            border: 1px solid black;
+            font-weight: 600;
+            word-wrap: break-word;
             margin-bottom: -80px;
             width: 100%;
             box-sizing: border-box;
             position: relative;
             z-index: 1;
             transition: transform 0.3s ease;
+            animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            line-height: 1.5;
+            padding: 3% 3% 3% 40px;
+            color: #F5F5F5;
+
+        }
+
+        #result-container div::before {
+            content: "";
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 1px solid black;
+            border-radius: 50%;
+            background-color: white;
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            margin: 5px;
         }
 
         #result-container div:hover {
-            transform: translateY(-10px);
-            z-index: 2;
+            transform: translateY(-50px);
         }
 
-        #user_proxy {
-            border: 1px solid yellow;
-            background-color: #fff9c4;
-        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(100%);
+            }
 
-        #op {
-            border: 1px solid red;
-            background-color: #ffcdd2;
-        }
-
-        #hater {
-            border: 1px solid blue;
-            background-color: #bbdefb;
-        }
-
-        #critic {
-            border: 1px solid green;
-            background-color: #c8e6c9;
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
     </style>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"
         integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
         crossorigin="anonymous"></script>
     <script>
+        const colors = ['#D6B517', '#FB6300', '#BC1112', '#ffff'];
+        let colorIndex = 0;
+
         const socket = io()
         socket.on('message', function (data) {
-            const newDiv = document.createElement('div');
-            newDiv.id = data.sender.toLowerCase();
-            newDiv.textContent = `${data.sender}: ${data.content}`;
-            document.getElementById('result-container').appendChild(newDiv);
+            if (data.sender.toLowerCase() !== 'admin') {
+                const newDiv = document.createElement('div');
+                newDiv.id = data.sender.toLowerCase();
+                newDiv.style.backgroundColor = colors[colorIndex];
+                newDiv.style.borderColor = colors[colorIndex];
+
+                const sender = document.createElement('span');
+                sender.style.color = 'black';
+                sender.style.fontWeight = 'bold';
+                sender.style.fontSize = '2rem';
+                sender.style.padding = '1rem';
+                sender.style.fontFamily = 'Bebas Neue, sans-serif';
+                sender.textContent = `${data.sender}:`;
+
+                const lineBreak = document.createElement('br');
+
+                const content = document.createTextNode(` ${data.content}`);
+
+                newDiv.appendChild(sender);
+                newDiv.appendChild(lineBreak);
+                newDiv.appendChild(content);
+                document.getElementById('result-container').appendChild(newDiv);
+
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
         });
+
         function triggerEndpoint() {
-            const userMessage = document.getElementById('input').value;
+            const inputElement = document.getElementById('input');
+            const userMessage = inputElement.value;
             fetch('/run', {
                 method: 'POST',
                 headers: {
@@ -70,15 +140,24 @@
                 body: JSON.stringify({ message: userMessage }),
             })
                 .then(response => response.json())
+
                 .catch(error => console.error('Error:', error));
         }
+        window.onload = function () {
+            document.getElementById('input').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    triggerEndpoint();
+                    e.target.style.display = 'none';
+                }
+            });
+        };
     </script>
 </head>
 
 <body>
-    <h1>AutoGen</h1>
-    <input type="text" id="input" placeholder="Type your message...">
-    <button onclick="triggerEndpoint()">Submit</button>
+    <h1>Is it Really a Good Idea?</h1>
+    <input type="text" id="input" placeholder="go ahead...">
+
     <div id="result-container"></div>
 </body>
 

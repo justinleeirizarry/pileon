@@ -1,4 +1,4 @@
-from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager, config_list_from_json
+from autogen import AssistantAgent, ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager, config_list_from_json
 from flask import Flask, jsonify, request, render_template
 from flask_socketio import SocketIO
 
@@ -26,35 +26,37 @@ GroupChatManager._print_received_message = new_print_received_message
 
 user_proxy = UserProxyAgent(
     name="Admin",
-    system_message="A human admin. Interact with the planner to discuss an idea for an app. The planner should start.",
+    system_message="A human admin. ",
     code_execution_config=False,
-    is_termination_msg=lambda msg: "TERMINATE" in msg["content"],
-    human_input_mode='NEVER',
+    human_input_mode="TERMINATE",
 )
 
 
-
-hater = AssistantAgent(
+hater = ConversableAgent(
     name="Hater",
     llm_config=gpt4_config,
-    system_message="""It is your job to be the opposition to every app idea. You are detailed and point out flaws in the logic and what it must say about the user.""",
+    system_message="""It is your job to be the opposition to every app idea. You point out flaws in the logic.""",
+    human_input_mode="NEVER",  
 )
 
-
-critic = AssistantAgent(
+critic = ConversableAgent(
     name="Critic",
-    system_message="Critic. Double check the critisism make nothing is missing",
     llm_config=gpt4_config,
+    system_message="""It is your job to be the opposition to every app idea. You point out flaws in the logic of the app idea""",
+    human_input_mode="NEVER",  
 )
 
-planner = AssistantAgent(
-    name="Op",
-    system_message="""Provide negative feedback to the user.
-""",
+OP = ConversableAgent(
+    name="OP",
     llm_config=gpt4_config,
+    system_message="""It is your job to add to the critisism of the other agents. """,
+    human_input_mode="NEVER",  
 )
+
+
+
 groupchat = GroupChat(
-    agents=[user_proxy, planner, hater,critic], messages=[], max_round=10
+    agents=[user_proxy, hater, critic, OP], messages=[], max_round=5
 )
 manager = GroupChatManager(groupchat, llm_config=gpt4_config)
 
